@@ -1,1 +1,1 @@
-a = 0
+from PIL import *
