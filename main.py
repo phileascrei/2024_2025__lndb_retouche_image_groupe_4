@@ -243,7 +243,7 @@ class ImageEditor(tk.Tk):
             self.display_image.thumbnail((self.zoom_factor * 700, self.zoom_factor * 500))
             img_tk = ImageTk.PhotoImage(self.display_image)
             self.canvas.delete("all")
-            self.canvas.create_image(400, 300, image=img_tk)  # Centrer l'image
+            self.canvas.create_image(1000, 500, image=img_tk)  # Centrer l'image
             self.canvas.image = img_tk
 
     def adjust_brightness(self, value):
