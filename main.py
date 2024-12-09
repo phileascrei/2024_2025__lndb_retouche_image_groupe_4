@@ -146,14 +146,53 @@
 
 
 
+# from tools import * 
 
+# if __name__ == "__main__":
+#     app = ImageEditor()
+#     app.mainloop()
 
+from PIL import Image, ImageEnhance
+import numpy as np
 
+def calculate_brightness_and_contrast(img):
+    # Convertir l'image en un tableau numpy (matrice)
+    img_array = np.array(img)
 
+    # Calculer la luminosité moyenne (moyenne des valeurs RVB)
+    brightness = np.mean(img_array)
 
+    # Calculer l'écart-type (mesure de la dispersion, donc du contraste)
+    contrast = np.std(img_array)
 
-from tools import * 
+    return brightness, contrast
 
-if __name__ == "__main__":
-    app = ImageEditor()
-    app.mainloop()
+def auto_enhance(image_path):
+    # Ouvrir l'image
+    img = Image.open(image_path)
+
+    # Calculer la luminosité et le contraste
+    brightness, contrast = calculate_brightness_and_contrast(img)
+
+    # Ajuster le facteur de luminosité
+    # On utilise un facteur ajusté en fonction de la luminosité, avec des limites plus souples
+    brightness_target = 128  # Cible pour la luminosité (valeur neutre)
+    brightness_factor = (brightness_target / brightness)  # Applique un ajustement linéaire
+
+    # Ajuster le facteur de contraste
+    # Si l'écart-type est faible, on l'augmente proportionnellement
+    contrast_target = 50  # Valeur cible pour un bon contraste moyen (tu peux tester cette valeur)
+    contrast_factor = contrast_target / contrast if contrast > contrast_target else 1.5
+
+    # Appliquer l'ajustement de la luminosité et du contraste
+    enhancer_brightness = ImageEnhance.Brightness(img)
+    img_brightness = enhancer_brightness.enhance(brightness_factor)
+
+    enhancer_contrast = ImageEnhance.Contrast(img_brightness)
+    img_enhanced = enhancer_contrast.enhance(contrast_factor)
+
+    # Afficher l'image améliorée
+    img_enhanced.show()
+
+# Exemple d'utilisation
+auto_enhance("test_image/image_sousexposee.jpg")
