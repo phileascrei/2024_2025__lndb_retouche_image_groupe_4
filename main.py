@@ -207,3 +207,4 @@ if __name__ == "__main__":
 
 # # Exemple d'utilisation
 # auto_enhance("test_image/image_sousexposee.jpg")
+
