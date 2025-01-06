@@ -1,5 +1,5 @@
  06/01/25
- Projet avancé a environ 35%: 
+ Projet avancé a environ 45%: 
  création d'une première fenêtre d'interface
  création de fonctionnalité (filtre comme contraste, luminosité)
  mise en place d'image test afin de faire de expérience et de faire des modification sur le projet 

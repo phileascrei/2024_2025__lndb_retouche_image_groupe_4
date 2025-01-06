@@ -85,6 +85,7 @@ from PIL import Image, ImageTk, ImageEnhance, ImageFilter
 #             if file_path:
 #                 self.display_image.save(file_path)
 
+
 #     def display_on_canvas(self):
 #         if self.display_image:
 #             self.display_image.thumbnail((self.zoom_factor * 700, self.zoom_factor * 500))
