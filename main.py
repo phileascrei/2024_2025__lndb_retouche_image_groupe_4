@@ -174,6 +174,10 @@
 #     app.mainloop()
 
 
+
+
+
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
@@ -271,6 +275,7 @@ class ImageEditor(tk.Tk):
             self.image_path = file_path
             self.original_image = Image.open(file_path)
             self.display_image = self.original_image
+            self.reset_sliders()
             self.display_on_canvas()
 
     def save_image(self):
@@ -286,6 +291,13 @@ class ImageEditor(tk.Tk):
             self.canvas.delete("all")
             self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
             self.canvas.image = img_tk
+
+    def reset_sliders(self):
+        self.exposure_slider.set(128)
+        self.contrast_slider.set(128)
+        self.saturation_slider.set(128)
+        self.highlights_slider.set(128)
+        self.shadows_slider.set(128)
 
     def adjust_exposure(self, value):
         if self.original_image:
