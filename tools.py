@@ -54,40 +54,40 @@ class ImageEditor(tk.Tk):
         bold_font_text = ("Helvetica", 8, "bold")
         bold_font_title = ("Helvetica", 12, "bold")
         # Sliders et boutons "auto"
-        tk.Label(self.controls_frame, text="Exposition", bg="#263238", fg="white", font=bold_font_title).pack(anchor="w", pady=5)
+        tk.Label(self.controls_frame, text="Exposition", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
         self.exposure_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text)
         self.exposure_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Exposition", command=self.auto_adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
-        tk.Label(self.controls_frame, text="Contraste", bg="#263238", fg="white", font=bold_font_title).pack(anchor="w", pady=5)
+        tk.Label(self.controls_frame, text="Contraste", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
         self.contrast_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text)
         self.contrast_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Contraste", command=self.auto_adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
-        tk.Label(self.controls_frame, text="Saturation", bg="#263238", fg="white", font=bold_font_title).pack(anchor="w", pady=5)
+        tk.Label(self.controls_frame, text="Saturation", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
         self.saturation_slider = tk.Scale(self.controls_frame, from_=-4, to=5, resolution=0.01, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text)
         self.saturation_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Saturation", command=self.auto_adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
 
-        tk.Label(self.controls_frame, text="Hautes Lumières", bg="#263238", fg="white", font=bold_font_title).pack(anchor="w", pady=5)
+        tk.Label(self.controls_frame, text="Hautes Lumières", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
         self.highlights_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text)
         self.highlights_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Hautes Lumières", command=self.auto_adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
-        tk.Label(self.controls_frame, text="Basses Lumières", bg="#263238", fg="white", font=bold_font_title).pack(anchor="w", pady=5)
+        tk.Label(self.controls_frame, text="Basses Lumières", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
         self.shadows_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text)
         self.shadows_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Basses Lumières", command=self.auto_adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
         # Zoom
-        tk.Label(self.controls_frame, text="Zoom", bg="#263238", fg="white", font=bold_font_title).pack(anchor="w", pady=5)
+        tk.Label(self.controls_frame, text="Zoom", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
         self.zoom_slider = tk.Scale(self.controls_frame, from_=0.1, to=3.0, resolution=0.1, orient=tk.HORIZONTAL, command=self.zoom_image, bg="#3b4d56", fg="white", font=bold_font_text)
         self.zoom_slider.set(1)
         self.zoom_slider.pack(fill=tk.X, pady=5)
 
         # Bouton reset 
-        tk.Button(self.controls_frame, text="Réinitialiser", command=self.reset_sliders, bg="#3b4d56", fg="white", font=bold_font_title).pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Réinitialiser", command=self.reset_sliders, bg="#3b4d56", fg="#eceff1", font=bold_font_title).pack(fill=tk.X, pady=5)
 
 
     def open_image(self):
