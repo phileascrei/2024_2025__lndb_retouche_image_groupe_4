@@ -53,6 +53,9 @@ class ImageEditor(tk.Tk):
 
         self.create_controls()
 
+        self.crop_button = tk.Button(self.controls_frame, text="Crop Image", command=self.open_crop_window)
+        self.crop_button.pack(fill=tk.X, pady=5)
+
     def create_controls(self):
         # Sliders et boutons "auto"
         tk.Label(self.controls_frame, text="Exposition", bg="#f4f4f4").pack(anchor="w", pady=5)
@@ -256,6 +259,66 @@ class ImageEditor(tk.Tk):
             )
             self.display_on_canvas()
 
+    def open_crop_window(self):
+        if not self.original_image:
+            return
+
+        crop_window = tk.Toplevel(self)
+        crop_window.title("Crop Image")
+
+        def update_crop():
+            try:
+                x1 = int(entry_x1.get())
+                y1 = int(entry_y1.get())
+                x2 = int(entry_x2.get())
+                y2 = int(entry_y2.get())
+                cropped_image = self.original_image.crop((x1, y1, x2, y2))
+                self.display_image = ImageTk.PhotoImage(cropped_image)
+                self.canvas.config(image=self.display_image)
+                self.canvas.image = self.display_image
+            except ValueError:
+                pass
+
+        def sync_entries_with_sliders(*args):
+            entry_x1.delete(0, tk.END)
+            entry_x1.insert(0, slider_x1.get())
+            entry_y1.delete(0, tk.END)
+            entry_y1.insert(0, slider_y1.get())
+            entry_x2.delete(0, tk.END)
+            entry_x2.insert(0, slider_x2.get())
+            entry_y2.delete(0, tk.END)
+            entry_y2.insert(0, slider_y2.get())
+            update_crop()
+
+        slider_x1 = tk.Scale(crop_window, from_=0, to=self.original_image.width, orient=tk.HORIZONTAL, label="x1", command=sync_entries_with_sliders)
+        slider_x1.pack()
+        slider_y1 = tk.Scale(crop_window, from_=0, to=self.original_image.height, orient=tk.HORIZONTAL, label="y1", command=sync_entries_with_sliders)
+        slider_y1.pack()
+        slider_x2 = tk.Scale(crop_window, from_=0, to=self.original_image.width, orient=tk.HORIZONTAL, label="x2", command=sync_entries_with_sliders)
+        slider_x2.pack()
+        slider_y2 = tk.Scale(crop_window, from_=0, to=self.original_image.height, orient=tk.HORIZONTAL, label="y2", command=sync_entries_with_sliders)
+        slider_y2.pack()
+
+        tk.Label(crop_window, text="x1:").pack()
+        entry_x1 = tk.Entry(crop_window)
+        entry_x1.pack()
+        entry_x1.bind("<Return>", lambda event: update_crop())
+
+        tk.Label(crop_window, text="y1:").pack()
+        entry_y1 = tk.Entry(crop_window)
+        entry_y1.pack()
+        entry_y1.bind("<Return>", lambda event: update_crop())
+
+        tk.Label(crop_window, text="x2:").pack()
+        entry_x2 = tk.Entry(crop_window)
+        entry_x2.pack()
+        entry_x2.bind("<Return>", lambda event: update_crop())
+
+        tk.Label(crop_window, text="y2:").pack()
+        entry_y2 = tk.Entry(crop_window)
+        entry_y2.pack()
+        entry_y2.bind("<Return>", lambda event: update_crop())
+
 def adjust_exposure(image, target_exposure):
     enhancer = ImageEnhance.Brightness(image)
     current_exposure = analyse_exposition(image)
@@ -324,3 +387,7 @@ def analyse_saturation(image):
     saturation = (max_val - min_val) / (max_val + 1e-10)  # Ajout d'une petite valeur pour éviter la division par zéro
     mean_saturation = np.mean(saturation)
     return mean_saturation
+
+if __name__ == "__main__":
+    app = ImageEditor()
+    app.mainloop()
