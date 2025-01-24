@@ -114,6 +114,9 @@ class ImageEditor(tk.Tk):
             self.canvas.delete("all")
             self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
             self.canvas.image = img_tk
+            # self.canvas.size(1, 1)
+
+            self.canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def reset_sliders(self):
         self.exposure_slider.set(128)
