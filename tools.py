@@ -108,22 +108,22 @@ class ImageEditor(tk.Tk):
 
     def display_on_canvas(self):
         if self.display_image:
-            self.display_image.thumbnail((self.zoom_factor * 700, self.zoom_factor * 500))
             img_tk = ImageTk.PhotoImage(self.display_image)
             self.canvas.delete("all")
-
+            
             # Obtenir les dimensions du canvas et de l'image
             canvas_width = self.canvas.winfo_width()
             canvas_height = self.canvas.winfo_height()
             image_width = img_tk.width()
             image_height = img_tk.height()
-
+            
             # Calculer les coordonnées pour centrer l'image
             x = (canvas_width - image_width) // 2
             y = (canvas_height - image_height) // 2
-
+            
             self.canvas.create_image(x, y, anchor=tk.NW, image=img_tk)
             self.canvas.image = img_tk
+
 
     def reset_sliders(self):
             self.exposure_slider.set(128)
