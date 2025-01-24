@@ -62,9 +62,10 @@ class ImageEditor(tk.Tk):
         tk.Button(self.controls_frame, text="Auto Contraste", command=self.auto_adjust_contrast, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
         tk.Label(self.controls_frame, text="Saturation", bg="#f4f4f4").pack(anchor="w", pady=5)
-        self.saturation_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#f4f4f4")
+        self.saturation_slider = tk.Scale(self.controls_frame, from_=-4, to=5, resolution=0.01, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#f4f4f4")
         self.saturation_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Saturation", command=self.auto_adjust_saturation, bg="#e0e0e0").pack(fill=tk.X, pady=5)
+
 
         tk.Label(self.controls_frame, text="Hautes Lumières", bg="#f4f4f4").pack(anchor="w", pady=5)
         self.highlights_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_highlights, bg="#f4f4f4")
@@ -82,15 +83,9 @@ class ImageEditor(tk.Tk):
         self.zoom_slider.set(1)
         self.zoom_slider.pack(fill=tk.X, pady=5)
 
-        # Boutons de transformation
-        tk.Button(self.controls_frame, text="Rotation 90°", command=self.rotate_image, bg="#e0e0e0").pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Recadrer", command=self.crop_image, bg="#e0e0e0").pack(fill=tk.X, pady=5)
+        # Bouton reset 
+        tk.Button(self.controls_frame, text="Réinitialiser", command=self.reset_sliders, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
-        # Filtres
-        tk.Label(self.controls_frame, text="Filtres", bg="#f4f4f4").pack(anchor="w", pady=5)
-        tk.Button(self.controls_frame, text="Noir & Blanc", command=self.apply_black_white_filter, bg="#e0e0e0").pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Sépia", command=self.apply_sepia_filter, bg="#e0e0e0").pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Flou", command=self.apply_blur_filter, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
     def open_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg;*.jpeg;*.png;*.bmp")])
@@ -112,18 +107,27 @@ class ImageEditor(tk.Tk):
             self.display_image.thumbnail((self.zoom_factor * 700, self.zoom_factor * 500))
             img_tk = ImageTk.PhotoImage(self.display_image)
             self.canvas.delete("all")
-            self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
-            self.canvas.image = img_tk
-            # self.canvas.size(1, 1)
 
-            self.canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+            # Obtenir les dimensions du canvas et de l'image
+            canvas_width = self.canvas.winfo_width()
+            canvas_height = self.canvas.winfo_height()
+            image_width = img_tk.width()
+            image_height = img_tk.height()
+
+            # Calculer les coordonnées pour centrer l'image
+            x = (canvas_width - image_width) // 2
+            y = (canvas_height - image_height) // 2
+
+            self.canvas.create_image(x, y, anchor=tk.NW, image=img_tk)
+            self.canvas.image = img_tk
 
     def reset_sliders(self):
-        self.exposure_slider.set(128)
-        self.contrast_slider.set(128)
-        self.saturation_slider.set(128)
-        self.highlights_slider.set(128)
-        self.shadows_slider.set(128)
+            self.exposure_slider.set(128)
+            self.contrast_slider.set(128)
+            self.saturation_slider.set(1)
+            self.highlights_slider.set(128)
+            self.shadows_slider.set(128)
+            #self.zoom_slider.set(1)
 
     def adjust_exposure(self, value):
         if self.original_image:
@@ -156,10 +160,17 @@ class ImageEditor(tk.Tk):
             self.display_on_canvas()
 
     def auto_adjust_saturation(self):
-        if self.original_image:
-            target_saturation = determine_target_saturation(self.original_image)
-            self.saturation_slider.set(target_saturation)
-            self.adjust_saturation(target_saturation)
+        if self.display_image:
+            # Calculer la saturation moyenne de l'image
+            img_array = np.array(self.display_image.convert("RGB"))
+            r, g, b = img_array[:,:,0], img_array[:,:,1], img_array[:,:,2]
+            avg_saturation = np.mean([r, g, b]) / 255.0
+            
+            # Ajuster la saturation pour qu'elle soit autour de 1.0
+            target_saturation = 1.0 / avg_saturation
+            enhancer = ImageEnhance.Color(self.display_image)
+            self.display_image = enhancer.enhance(target_saturation)
+            self.show_image()
 
     def adjust_highlights(self, value):
         if self.original_image:
