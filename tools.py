@@ -67,7 +67,7 @@ class ImageEditor(tk.Tk):
         tk.Button(self.controls_frame, text="Auto Contraste", command=self.auto_adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
         tk.Label(self.controls_frame, text="Saturation", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.saturation_slider = tk.Scale(self.controls_frame, from_=-4, to=5, resolution=0.01, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text)
+        self.saturation_slider = tk.Scale(self.controls_frame, from_=-4.00, to=5.00, resolution=0.01, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text)
         self.saturation_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Saturation", command=self.auto_adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
@@ -122,7 +122,7 @@ class ImageEditor(tk.Tk):
     def reset_sliders(self):
         self.exposure_slider.set(128)
         self.contrast_slider.set(128)
-        self.saturation_slider.set(128)
+        self.saturation_slider.set(0.00)
         self.highlights_slider.set(128)
         self.shadows_slider.set(128)
 
@@ -286,7 +286,29 @@ def determine_target_contrast(image):
 
 def determine_target_saturation(image):
     current_saturation = analyse_saturation(image)
-    target_saturation = 1  # Valeur cible pour une saturation moyenne
+    brightness = analyse_brightness(image)
+    contrast = analyse_contrast(image)
+    
+    # Heuristics to determine target saturation
+    if brightness < 100:  # Dark image
+        if contrast < 50:
+            target_saturation = current_saturation * 1.5  # Increase saturation for low contrast
+        else:
+            target_saturation = current_saturation * 1.2  # Slightly increase saturation for high contrast
+    elif brightness > 150:  # Bright image
+        if contrast < 50:
+            target_saturation = current_saturation * 0.8  # Decrease saturation for low contrast
+        else:
+            target_saturation = current_saturation * 0.9  # Slightly decrease saturation for high contrast
+    else:  # Medium brightness
+        if contrast < 50:
+            target_saturation = current_saturation * 1.1  # Slightly increase saturation for low contrast
+        else:
+            target_saturation = current_saturation  # Keep saturation the same for high contrast
+    
+    # Ensure the target saturation is within a reasonable range
+    target_saturation = max(0.0, min(target_saturation, 2.0))
+    
     return target_saturation
 
 def analyse_exposition(image):
@@ -295,11 +317,17 @@ def analyse_exposition(image):
     mean_brightness = np.mean(np_image)
     return mean_brightness
 
+def analyse_brightness(image):
+    image = image.convert("L")
+    np_image = np.array(image, dtype=np.float32)
+    mean_brightness = np.mean(np_image)
+    return mean_brightness
+
 def analyse_contrast(image):
     image = image.convert("L")
-    np_image = np.array(image)
+    np_image = np.array(image, dtype=np.float32)
     contrast = np.std(np_image)
-    return contrast 
+    return contrast
 
 def analyse_saturation(image):
     image = image.convert("RGB")
@@ -310,17 +338,6 @@ def analyse_saturation(image):
     saturation = (max_val - min_val) / (max_val + 1e-10)  # Ajout d'une petite valeur pour éviter la division par zéro
     mean_saturation = np.mean(saturation)
     return mean_saturation
-
-
-
-
-
-
-
-
-
-
-
 
 
 
