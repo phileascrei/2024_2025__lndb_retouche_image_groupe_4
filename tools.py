@@ -13,7 +13,7 @@ class ImageEditor(tk.Tk):
 
         self.title("Application de Retouche d'Image")
         self.geometry("1000x700")
-        self.configure(bg="#263238")
+        self.configure(bg="#f4f4f4")
 
         self.image_path = None
         self.original_image = None
@@ -33,65 +33,64 @@ class ImageEditor(tk.Tk):
         self.file_menu.add_command(label="Quitter", command=self.quit)
 
         # Section principale
-        self.main_frame = tk.Frame(self, bg="#263238")
+        self.main_frame = tk.Frame(self, bg="#f4f4f4")
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Canvas pour afficher l'image
-        self.canvas_frame = tk.Frame(self.main_frame, bg="#3b4d56", relief=tk.RIDGE, bd=2)
+        self.canvas_frame = tk.Frame(self.main_frame, bg="#ffffff", relief=tk.RIDGE, bd=2)
         self.canvas_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        self.canvas = tk.Canvas(self.canvas_frame, bg="#3b4d56")
+        self.canvas = tk.Canvas(self.canvas_frame, bg="white")
         self.canvas.pack(fill=tk.BOTH, expand=True)
 
         # Barre de réglages
-        self.controls_frame = tk.Frame(self.main_frame, bg="#263238")
+        self.controls_frame = tk.Frame(self.main_frame, bg="#f4f4f4")
         self.controls_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=10, pady=10)
 
         self.create_controls()
 
-        self.crop_button = tk.Button(self.controls_frame, text="Crop Image", command=self.open_crop_window)
-        self.crop_button.pack(fill=tk.X, pady=5)
-
     def create_controls(self):
-        # Définir la police en gras
-        bold_font_text = ("Helvetica", 8, "bold")
-        bold_font_title = ("Helvetica", 12, "bold")
         # Sliders et boutons "auto"
-        tk.Label(self.controls_frame, text="Exposition", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.exposure_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text)
+        tk.Label(self.controls_frame, text="Exposition", bg="#f4f4f4").pack(anchor="w", pady=5)
+        self.exposure_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_exposure, bg="#f4f4f4")
         self.exposure_slider.pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Auto Exposition", command=self.auto_adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Auto Exposition", command=self.auto_adjust_exposure, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
-        tk.Label(self.controls_frame, text="Contraste", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.contrast_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text)
+        tk.Label(self.controls_frame, text="Contraste", bg="#f4f4f4").pack(anchor="w", pady=5)
+        self.contrast_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_contrast, bg="#f4f4f4")
         self.contrast_slider.pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Auto Contraste", command=self.auto_adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Auto Contraste", command=self.auto_adjust_contrast, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
-        tk.Label(self.controls_frame, text="Saturation", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.saturation_slider = tk.Scale(self.controls_frame, from_=-4, to=5, resolution=0.01, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text)
+        tk.Label(self.controls_frame, text="Saturation", bg="#f4f4f4").pack(anchor="w", pady=5)
+        self.saturation_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_saturation, bg="#f4f4f4")
         self.saturation_slider.pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Auto Saturation", command=self.auto_adjust_saturation, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Auto Saturation", command=self.auto_adjust_saturation, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
-
-        tk.Label(self.controls_frame, text="Hautes Lumières", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.highlights_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text)
+        tk.Label(self.controls_frame, text="Hautes Lumières", bg="#f4f4f4").pack(anchor="w", pady=5)
+        self.highlights_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_highlights, bg="#f4f4f4")
         self.highlights_slider.pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Auto Hautes Lumières", command=self.auto_adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Auto Hautes Lumières", command=self.auto_adjust_highlights, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
-        tk.Label(self.controls_frame, text="Basses Lumières", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.shadows_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text)
+        tk.Label(self.controls_frame, text="Basses Lumières", bg="#f4f4f4").pack(anchor="w", pady=5)
+        self.shadows_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_shadows, bg="#f4f4f4")
         self.shadows_slider.pack(fill=tk.X, pady=5)
-        tk.Button(self.controls_frame, text="Auto Basses Lumières", command=self.auto_adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Auto Basses Lumières", command=self.auto_adjust_shadows, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
         # Zoom
-        tk.Label(self.controls_frame, text="Zoom", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.zoom_slider = tk.Scale(self.controls_frame, from_=0.1, to=3.0, resolution=0.1, orient=tk.HORIZONTAL, command=self.zoom_image, bg="#3b4d56", fg="white", font=bold_font_text)
+        tk.Label(self.controls_frame, text="Zoom", bg="#f4f4f4").pack(anchor="w", pady=5)
+        self.zoom_slider = tk.Scale(self.controls_frame, from_=0.1, to=3.0, resolution=0.1, orient=tk.HORIZONTAL, command=self.zoom_image, bg="#f4f4f4")
         self.zoom_slider.set(1)
         self.zoom_slider.pack(fill=tk.X, pady=5)
 
-        # Bouton reset 
-        tk.Button(self.controls_frame, text="Réinitialiser", command=self.reset_sliders, bg="#3b4d56", fg="#eceff1", font=bold_font_title).pack(fill=tk.X, pady=5)
+        # Boutons de transformation
+        tk.Button(self.controls_frame, text="Rotation 90°", command=self.rotate_image, bg="#e0e0e0").pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Recadrer", command=self.crop_image, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
+        # Filtres
+        tk.Label(self.controls_frame, text="Filtres", bg="#f4f4f4").pack(anchor="w", pady=5)
+        tk.Button(self.controls_frame, text="Noir & Blanc", command=self.apply_black_white_filter, bg="#e0e0e0").pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Sépia", command=self.apply_sepia_filter, bg="#e0e0e0").pack(fill=tk.X, pady=5)
+        tk.Button(self.controls_frame, text="Flou", command=self.apply_blur_filter, bg="#e0e0e0").pack(fill=tk.X, pady=5)
 
     def open_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg;*.jpeg;*.png;*.bmp")])
@@ -110,30 +109,23 @@ class ImageEditor(tk.Tk):
 
     def display_on_canvas(self):
         if self.display_image:
+            self.display_image.thumbnail((self.zoom_factor * 700, self.zoom_factor * 500))
             img_tk = ImageTk.PhotoImage(self.display_image)
             self.canvas.delete("all")
-            
-            # Obtenir les dimensions du canvas et de l'image
-            canvas_width = self.canvas.winfo_width()
-            canvas_height = self.canvas.winfo_height()
-            image_width = img_tk.width()
-            image_height = img_tk.height()
-            
-            # Calculer les coordonnées pour centrer l'image
-            x = (canvas_width - image_width) // 2
-            y = (canvas_height - image_height) // 2
-            
-            self.canvas.create_image(x, y, anchor=tk.NW, image=img_tk)
+            self.canvas.create_image(
+                self.canvas.winfo_width() // 2,
+                self.canvas.winfo_height() // 2,
+                anchor=tk.CENTER,
+                image=img_tk
+            )
             self.canvas.image = img_tk
 
-
     def reset_sliders(self):
-            self.exposure_slider.set(128)
-            self.contrast_slider.set(128)
-            self.saturation_slider.set(1)
-            self.highlights_slider.set(128)
-            self.shadows_slider.set(128)
-            #self.zoom_slider.set(1)
+        self.exposure_slider.set(128)
+        self.contrast_slider.set(128)
+        self.saturation_slider.set(128)
+        self.highlights_slider.set(128)
+        self.shadows_slider.set(128)
 
     def adjust_exposure(self, value):
         if self.original_image:
@@ -166,17 +158,10 @@ class ImageEditor(tk.Tk):
             self.display_on_canvas()
 
     def auto_adjust_saturation(self):
-        if self.display_image:
-            # Calculer la saturation moyenne de l'image
-            img_array = np.array(self.display_image.convert("RGB"))
-            r, g, b = img_array[:,:,0], img_array[:,:,1], img_array[:,:,2]
-            avg_saturation = np.mean([r, g, b]) / 255.0
-            
-            # Ajuster la saturation pour qu'elle soit autour de 1.0
-            target_saturation = 1.0 / avg_saturation
-            enhancer = ImageEnhance.Color(self.display_image)
-            self.display_image = enhancer.enhance(target_saturation)
-            self.show_image()
+        if self.original_image:
+            target_saturation = determine_target_saturation(self.original_image)
+            self.saturation_slider.set(target_saturation)
+            self.adjust_saturation(target_saturation)
 
     def adjust_highlights(self, value):
         if self.original_image:
@@ -258,66 +243,6 @@ class ImageEditor(tk.Tk):
             )
             self.display_on_canvas()
 
-    def open_crop_window(self):
-        if not self.original_image:
-            return
-
-        crop_window = tk.Toplevel(self)
-        crop_window.title("Crop Image")
-
-        def update_crop():
-            try:
-                x1 = int(entry_x1.get())
-                y1 = int(entry_y1.get())
-                x2 = int(entry_x2.get())
-                y2 = int(entry_y2.get())
-                cropped_image = self.original_image.crop((x1, y1, x2, y2))
-                self.display_image = ImageTk.PhotoImage(cropped_image)
-                self.canvas.config(image=self.display_image)
-                self.canvas.image = self.display_image
-            except ValueError:
-                pass
-
-        def sync_entries_with_sliders(*args):
-            entry_x1.delete(0, tk.END)
-            entry_x1.insert(0, slider_x1.get())
-            entry_y1.delete(0, tk.END)
-            entry_y1.insert(0, slider_y1.get())
-            entry_x2.delete(0, tk.END)
-            entry_x2.insert(0, slider_x2.get())
-            entry_y2.delete(0, tk.END)
-            entry_y2.insert(0, slider_y2.get())
-            update_crop()
-
-        slider_x1 = tk.Scale(crop_window, from_=0, to=self.original_image.width, orient=tk.HORIZONTAL, label="x1", command=sync_entries_with_sliders)
-        slider_x1.pack()
-        slider_y1 = tk.Scale(crop_window, from_=0, to=self.original_image.height, orient=tk.HORIZONTAL, label="y1", command=sync_entries_with_sliders)
-        slider_y1.pack()
-        slider_x2 = tk.Scale(crop_window, from_=0, to=self.original_image.width, orient=tk.HORIZONTAL, label="x2", command=sync_entries_with_sliders)
-        slider_x2.pack()
-        slider_y2 = tk.Scale(crop_window, from_=0, to=self.original_image.height, orient=tk.HORIZONTAL, label="y2", command=sync_entries_with_sliders)
-        slider_y2.pack()
-
-        tk.Label(crop_window, text="x1:").pack()
-        entry_x1 = tk.Entry(crop_window)
-        entry_x1.pack()
-        entry_x1.bind("<Return>", lambda event: update_crop())
-
-        tk.Label(crop_window, text="y1:").pack()
-        entry_y1 = tk.Entry(crop_window)
-        entry_y1.pack()
-        entry_y1.bind("<Return>", lambda event: update_crop())
-
-        tk.Label(crop_window, text="x2:").pack()
-        entry_x2 = tk.Entry(crop_window)
-        entry_x2.pack()
-        entry_x2.bind("<Return>", lambda event: update_crop())
-
-        tk.Label(crop_window, text="y2:").pack()
-        entry_y2 = tk.Entry(crop_window)
-        entry_y2.pack()
-        entry_y2.bind("<Return>", lambda event: update_crop())
-
 def adjust_exposure(image, target_exposure):
     enhancer = ImageEnhance.Brightness(image)
     current_exposure = analyse_exposition(image)
@@ -387,6 +312,19 @@ def analyse_saturation(image):
     mean_saturation = np.mean(saturation)
     return mean_saturation
 
-if __name__ == "__main__":
-    app = ImageEditor()
-    app.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
