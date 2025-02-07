@@ -20,16 +20,9 @@ class ImageEditor(tk.Tk):
         self.display_image = None
         self.zoom_factor = 1.0
 
-        # Variables pour stocker les valeurs des paramètres ajustés
-        self.current_exposure = 1.0
-        self.current_contrast = 1.0
-        self.current_saturation = 1.0
-        self.current_highlights = 1.0
-        self.current_shadows = 1.0
-
         # Barre de menu
         self.menu_bar = tk.Menu(self)
-        self.config(menu=self.menu_bar) 
+        self.config(menu=self.menu_bar)
 
         # Menu Fichier
         self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
@@ -135,8 +128,9 @@ class ImageEditor(tk.Tk):
 
     def adjust_exposure(self, value):
         if self.original_image:
-            self.current_exposure = float(value)
-            self.apply_adjustments()
+            target_exposure = float(value)
+            self.display_image = adjust_exposure(self.original_image, target_exposure)
+            self.display_on_canvas()
 
     def auto_adjust_exposure(self):
         if self.original_image:
@@ -146,8 +140,9 @@ class ImageEditor(tk.Tk):
 
     def adjust_contrast(self, value):
         if self.original_image:
-            self.current_contrast = float(value)
-            self.apply_adjustments()
+            target_contrast = float(value)
+            self.display_image = adjust_contrast(self.original_image, target_contrast)
+            self.display_on_canvas()
 
     def auto_adjust_contrast(self):
         if self.original_image:
@@ -157,8 +152,9 @@ class ImageEditor(tk.Tk):
 
     def adjust_saturation(self, value):
         if self.original_image:
-            self.current_saturation = float(value)
-            self.apply_adjustments()
+            target_saturation = float(value)
+            self.display_image = adjust_saturation(self.original_image, target_saturation)
+            self.display_on_canvas()
 
     def auto_adjust_saturation(self):
         if self.original_image:
@@ -168,8 +164,9 @@ class ImageEditor(tk.Tk):
 
     def adjust_highlights(self, value):
         if self.original_image:
-            self.current_highlights = float(value) / 128  # Normaliser la valeur
-            self.apply_adjustments()
+            factor = float(value) / 128  # Normaliser la valeur
+            self.display_image = adjust_highlights(self.original_image, factor)
+            self.display_on_canvas()
 
     def auto_adjust_highlights(self):
         if self.original_image:
@@ -179,8 +176,9 @@ class ImageEditor(tk.Tk):
 
     def adjust_shadows(self, value):
         if self.original_image:
-            self.current_shadows = float(value) / 128  # Normaliser la valeur
-            self.apply_adjustments()
+            factor = float(value) / 128  # Normaliser la valeur
+            self.display_image = adjust_shadows(self.original_image, factor)
+            self.display_on_canvas()
 
     def auto_adjust_shadows(self):
         if self.original_image:
@@ -243,15 +241,6 @@ class ImageEditor(tk.Tk):
                 Image.Resampling.LANCZOS
             )
             self.display_on_canvas()
-
-    def apply_adjustments(self):
-        self.display_image = self.original_image.copy()
-        self.display_image = adjust_exposure(self.display_image, self.current_exposure)
-        self.display_image = adjust_contrast(self.display_image, self.current_contrast)
-        self.display_image = adjust_saturation(self.display_image, self.current_saturation)
-        self.display_image = adjust_highlights(self.display_image, self.current_highlights)
-        self.display_image = adjust_shadows(self.display_image, self.current_shadows)
-        self.display_on_canvas()
 
 def adjust_exposure(image, target_exposure):
     enhancer = ImageEnhance.Brightness(image)
