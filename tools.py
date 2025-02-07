@@ -289,7 +289,7 @@ def determine_target_saturation(image):
     brightness = analyse_brightness(image)
     contrast = analyse_contrast(image)
     
-    # Heuristics to determine target saturation
+    # Paramètres pour déterminer la saturation de la cible
     if brightness < 100:  # Dark image
         if contrast < 50:
             target_saturation = current_saturation * 1.5  # Increase saturation for low contrast
@@ -306,7 +306,7 @@ def determine_target_saturation(image):
         else:
             target_saturation = current_saturation  # Keep saturation the same for high contrast
     
-    # Ensure the target saturation is within a reasonable range
+    # S'assurer que la saturation cible se situe dans une plage raisonnable
     target_saturation = max(0.0, min(target_saturation, 2.0))
     
     return target_saturation
