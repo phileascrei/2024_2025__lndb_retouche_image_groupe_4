@@ -5,8 +5,6 @@ from PIL import Image, ImageTk, ImageEnhance, ImageFilter
 import numpy as np
 
 
-
-
 class ImageEditor(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -57,12 +55,12 @@ class ImageEditor(tk.Tk):
         bold_font_title = ("Helvetica", 12, "bold")
         # Sliders et boutons "auto"
         tk.Label(self.controls_frame, text="Exposition", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.exposure_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text)
+        self.exposure_slider = tk.Scale(self.controls_frame, from_=0.00, to=2.00, resolution= 0.01, orient=tk.HORIZONTAL, command=self.adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text)
         self.exposure_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Exposition", command=self.auto_adjust_exposure, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
         tk.Label(self.controls_frame, text="Contraste", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.contrast_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text)
+        self.contrast_slider = tk.Scale(self.controls_frame, from_=0.00, to=2.00, resolution= 0.01, orient=tk.HORIZONTAL, command=self.adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text)
         self.contrast_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Contraste", command=self.auto_adjust_contrast, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
@@ -73,12 +71,12 @@ class ImageEditor(tk.Tk):
 
 
         tk.Label(self.controls_frame, text="Hautes Lumières", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.highlights_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text)
+        self.highlights_slider = tk.Scale(self.controls_frame, from_=0.00, to=2.00, resolution= 0.01, orient=tk.HORIZONTAL, command=self.adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text)
         self.highlights_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Hautes Lumières", command=self.auto_adjust_highlights, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
         tk.Label(self.controls_frame, text="Basses Lumières", bg="#263238", fg="#eceff1", font=bold_font_title).pack(anchor="w", pady=5)
-        self.shadows_slider = tk.Scale(self.controls_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=self.adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text)
+        self.shadows_slider = tk.Scale(self.controls_frame, from_=0.00, to=2.00, resolution= 0.01, orient=tk.HORIZONTAL, command=self.adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text)
         self.shadows_slider.pack(fill=tk.X, pady=5)
         tk.Button(self.controls_frame, text="Auto Basses Lumières", command=self.auto_adjust_shadows, bg="#3b4d56", fg="white", font=bold_font_text).pack(fill=tk.X, pady=5)
 
@@ -106,6 +104,15 @@ class ImageEditor(tk.Tk):
             if file_path:
                 self.display_image.save(file_path)
 
+    def zoom_image(self, value):
+        self.zoom_factor = float(value)
+        if self.original_image:
+            self.display_image = self.original_image.resize(
+                (int(self.original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
+                Image.Resampling.LANCZOS
+            )
+            self.display_on_canvas()
+
     def display_on_canvas(self):
         if self.display_image:
             self.display_image.thumbnail((self.zoom_factor * 700, self.zoom_factor * 500))
@@ -120,221 +127,130 @@ class ImageEditor(tk.Tk):
             self.canvas.image = img_tk
 
     def reset_sliders(self):
-        self.exposure_slider.set(128)
-        self.contrast_slider.set(128)
+        self.exposure_slider.set(1.00)
+        self.contrast_slider.set(1.00)
         self.saturation_slider.set(0.00)
-        self.highlights_slider.set(128)
-        self.shadows_slider.set(128)
+        self.highlights_slider.set(1.00)
+        self.shadows_slider.set(1.00)
+
+
+
+
 
     def adjust_exposure(self, value):
         if self.original_image:
-            target_exposure = float(value)
-            self.display_image = adjust_exposure(self.original_image, target_exposure)
+            enhancer = ImageEnhance.Brightness(self.original_image)
+            self.display_image = enhancer.enhance(float(value))
             self.display_on_canvas()
-
-    def auto_adjust_exposure(self):
-        if self.original_image:
-            target_exposure = determine_target_exposure(self.original_image)
-            self.exposure_slider.set(target_exposure)
-            self.adjust_exposure(target_exposure)
 
     def adjust_contrast(self, value):
         if self.original_image:
-            target_contrast = float(value)
-            self.display_image = adjust_contrast(self.original_image, target_contrast)
+            enhancer = ImageEnhance.Contrast(self.original_image)
+            self.display_image = enhancer.enhance(float(value))
             self.display_on_canvas()
-
-    def auto_adjust_contrast(self):
-        if self.original_image:
-            target_contrast = determine_target_contrast(self.original_image)
-            self.contrast_slider.set(target_contrast)
-            self.adjust_contrast(target_contrast)
 
     def adjust_saturation(self, value):
         if self.original_image:
-            target_saturation = float(value)
-            self.display_image = adjust_saturation(self.original_image, target_saturation)
+            enhancer = ImageEnhance.Color(self.original_image)
+            self.display_image = enhancer.enhance(float(value) + 1)  # Décalage pour éviter des valeurs négatives
             self.display_on_canvas()
-
-    def auto_adjust_saturation(self):
-        if self.original_image:
-            target_saturation = determine_target_saturation(self.original_image)
-            self.saturation_slider.set(target_saturation)
-            self.adjust_saturation(target_saturation)
 
     def adjust_highlights(self, value):
         if self.original_image:
-            factor = float(value) / 128  # Normaliser la valeur
-            self.display_image = adjust_highlights(self.original_image, factor)
+            img = np.array(self.original_image.convert("RGB"), dtype=np.float32) / 255.0
+            img[:, :, 0:3] = np.clip(img[:, :, 0:3] * float(value), 0, 1)
+            self.display_image = Image.fromarray((img * 255).astype(np.uint8))
             self.display_on_canvas()
-
-    def auto_adjust_highlights(self):
-        if self.original_image:
-            factor = 0.8  # Exemple de facteur pour les hautes lumières
-            self.highlights_slider.set(factor * 128)  # Dé-normaliser la valeur
-            self.adjust_highlights(factor * 128)
 
     def adjust_shadows(self, value):
         if self.original_image:
-            factor = float(value) / 128  # Normaliser la valeur
-            self.display_image = adjust_shadows(self.original_image, factor)
+            img = np.array(self.original_image.convert("RGB"), dtype=np.float32) / 255.0
+            shadows_mask = img < 0.5  # On cible les basses lumières
+            img[shadows_mask] = np.clip(img[shadows_mask] * float(value), 0, 1)
+            self.display_image = Image.fromarray((img * 255).astype(np.uint8))
             self.display_on_canvas()
+
+
+
+
+
+
+    def auto_adjust_exposure(self):
+        self.adjust_exposure(self.determine_target_exposure())
+
+    def auto_adjust_contrast(self):
+        pass
+
+    def auto_adjust_saturation(self):
+        self.adjust_saturation(self.determine_target_saturation())
+
+    def auto_adjust_highlights(self):
+        pass
 
     def auto_adjust_shadows(self):
-        if self.original_image:
-            factor = 1.2  # Exemple de facteur pour les basses lumières
-            self.shadows_slider.set(factor * 128)  # Dé-normaliser la valeur
-            self.adjust_shadows(factor * 128)
+        pass
 
-    def rotate_image(self):
-        if self.display_image:
-            self.display_image = self.display_image.rotate(90, expand=True)
-            self.display_on_canvas()
 
-    def crop_image(self):
-        if self.display_image:
-            width, height = self.display_image.size
-            self.display_image = self.display_image.crop((width//4, height//4, 3*width//4, 3*height//4))
-            self.display_on_canvas()
 
-    def apply_black_white_filter(self):
-        if self.display_image:
-            self.display_image = self.display_image.convert("L")  # Convertir en noir et blanc
-            self.display_on_canvas()
 
-    def apply_sepia_filter(self):
-        if self.display_image:
-            width, height = self.display_image.size
-            pixels = self.display_image.load()
 
-            for py in range(height):
-                for px in range(width):
-                    r, g, b = self.display_image.getpixel((px, py))
 
-                    tr = int(0.393 * r + 0.769 * g + 0.189 * b)
-                    tg = int(0.349 * r + 0.686 * g + 0.168 * b)
-                    tb = int(0.272 * r + 0.534 * g + 0.131 * b)
+    def determine_target_exposure(self):
+        if not self.original_image:
+            return 1.0  # Retourne un facteur neutre par défaut
 
-                    if tr > 255:
-                        tr = 255
+        # Convertir l'image en niveaux de gris
+        gray_image = self.original_image.convert("L")
+        image_array = np.array(gray_image)
 
-                    if tg > 255:
-                        tg = 255
+        # Calculer la moyenne de la luminosité
+        mean_brightness = np.mean(image_array)
+        std_brightness = np.std(image_array)  # Écart-type pour voir la variation des niveaux de lumière
 
-                    if tb > 255:
-                        tb = 255
-
-                    pixels[px, py] = (tr, tg, tb)
-
-            self.display_on_canvas()
-
-    def apply_blur_filter(self):
-        if self.display_image:
-            self.display_image = self.display_image.filter(ImageFilter.BLUR)
-            self.display_on_canvas()
-
-    def zoom_image(self, value):
-        self.zoom_factor = float(value)
-        if self.original_image:
-            self.display_image = self.original_image.resize(
-                (int(self.original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
-                Image.Resampling.LANCZOS
-            )
-            self.display_on_canvas()
-
-def adjust_exposure(image, target_exposure):
-    enhancer = ImageEnhance.Brightness(image)
-    current_exposure = analyse_exposition(image)
-    factor = target_exposure / current_exposure
-    return enhancer.enhance(factor)
-
-def adjust_contrast(image, target_contrast):
-    enhancer = ImageEnhance.Contrast(image)
-    current_contrast = analyse_contrast(image)
-    factor = target_contrast / current_contrast
-    return enhancer.enhance(factor)
-
-def adjust_saturation(image, target_saturation):
-    enhancer = ImageEnhance.Color(image)
-    current_saturation = analyse_saturation(image)
-    factor = target_saturation / current_saturation
-    return enhancer.enhance(factor)
-
-def adjust_highlights(image, factor):
-    image = image.convert("RGB")
-    np_image = np.array(image)
-    mask = np_image > 128  # Masque pour les hautes lumières
-    np_image[mask] = np.clip(np_image[mask] * factor, 0, 255).astype(np.uint8)
-    return Image.fromarray(np_image)
-
-def adjust_shadows(image, factor):
-    image = image.convert("RGB")
-    np_image = np.array(image)
-    mask = np_image < 128  # Masque pour les basses lumières
-    np_image[mask] = np.clip(np_image[mask] * factor, 0, 255).astype(np.uint8)
-    return Image.fromarray(np_image)
-
-def determine_target_exposure(image):
-    current_exposure = analyse_exposition(image)
-    target_exposure = 128  # Valeur cible pour une exposition moyenne
-    return target_exposure
-
-def determine_target_contrast(image):
-    current_contrast = analyse_contrast(image)
-    target_contrast = 50  # Valeur cible pour un contraste moyen
-    return target_contrast
-
-def determine_target_saturation(image):
-    current_saturation = analyse_saturation(image)
-    brightness = analyse_brightness(image)
-    contrast = analyse_contrast(image)
-    
-    # Heuristics to determine target saturation
-    if brightness < 100:  # Dark image
-        if contrast < 50:
-            target_saturation = current_saturation * 1.5  # Increase saturation for low contrast
+        # Analyse de l'exposition en fonction des seuils
+        if mean_brightness < 50:  # Photo sous-exposée (très sombre, souvent de nuit)
+            exposure_factor = 1.8 if std_brightness < 30 else 1.5  # Plus homogène = boost plus fort
+        elif mean_brightness > 200:  # Photo surexposée (très claire, en plein soleil)
+            exposure_factor = 0.7 if std_brightness > 50 else 0.8
         else:
-            target_saturation = current_saturation * 1.2  # Slightly increase saturation for high contrast
-    elif brightness > 150:  # Bright image
-        if contrast < 50:
-            target_saturation = current_saturation * 0.8  # Decrease saturation for low contrast
-        else:
-            target_saturation = current_saturation * 0.9  # Slightly decrease saturation for high contrast
-    else:  # Medium brightness
-        if contrast < 50:
-            target_saturation = current_saturation * 1.1  # Slightly increase saturation for low contrast
-        else:
-            target_saturation = current_saturation  # Keep saturation the same for high contrast
+            exposure_factor = 1.2 if mean_brightness < 120 else 0.9  # Ajustement fin
+
+        # Appliquer automatiquement l'ajustement
+        self.exposure_slider.set(exposure_factor)
+        enhancer = ImageEnhance.Brightness(self.original_image)
+        self.display_image = enhancer.enhance(exposure_factor)
+        self.display_on_canvas()
+
+        return exposure_factor  # Retourne la valeur appliquée pour information
+
+    def determine_target_contrast(self):
+        pass
     
-    # Ensure the target saturation is within a reasonable range
-    target_saturation = max(0.0, min(target_saturation, 2.0))
-    
-    return target_saturation
+    def determine_target_saturation(self):
+        # Convertir l'image en mode HSV
+        hsv_image = self.original_image.convert('HSV')
+        hsv_array = np.array(hsv_image)
 
-def analyse_exposition(image):
-    image = image.convert("L")
-    np_image = np.array(image)
-    mean_brightness = np.mean(np_image)
-    return mean_brightness
+        # Extraire les composantes H, S, et V
+        h, s, v = hsv_array[:, :, 0], hsv_array[:, :, 1], hsv_array[:, :, 2]
 
-def analyse_brightness(image):
-    image = image.convert("L")
-    np_image = np.array(image, dtype=np.float32)
-    mean_brightness = np.mean(np_image)
-    return mean_brightness
+        # Calculer les statistiques nécessaires sur la saturation
+        mean_s = np.mean(s)          # Moyenne de la saturation
+        std_s = np.std(s)            # Écart-type de la saturation
+        variance_s = np.var(s)       # Variance de la saturation
 
-def analyse_contrast(image):
-    image = image.convert("L")
-    np_image = np.array(image, dtype=np.float32)
-    contrast = np.std(np_image)
-    return contrast
+        # Calculer une formule mathématique pour obtenir un facteur de saturation
+        # Formule simplifiée pour déterminer un ajustement dynamique basé sur les statistiques
+        saturation_factor = (mean_s / 255) + (std_s / (255 * np.sqrt(2 * np.pi)))  # Ajustement par écart-type normalisé
 
-def analyse_saturation(image):
-    image = image.convert("RGB")
-    np_image = np.array(image)
-    r, g, b = np_image[:,:,0], np_image[:,:,1], np_image[:,:,2]
-    max_val = np.maximum(np.maximum(r, g), b)
-    min_val = np.minimum(np.minimum(r, g), b)
-    saturation = (max_val - min_val) / (max_val + 1e-10)  # Ajout d'une petite valeur pour éviter la division par zéro
-    mean_saturation = np.mean(saturation)
-    return mean_saturation
+        # Appliquer un calcul pour obtenir un facteur dans une plage acceptable
+        saturation_factor = np.clip(saturation_factor, 0.5, 1.5)  # Assurer un facteur raisonnable
+
+        # Retourner le facteur de saturation calculé
+        return saturation_factor
+
+    def determine_target_highlights(self):
+        pass
+
+    def determine_target_shadows(self):
+        pass
