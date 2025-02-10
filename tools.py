@@ -209,10 +209,14 @@ class ImageEditor(tk.Tk):
         self.adjust_exposure(self.determine_target_exposure())
 
     def auto_adjust_contrast(self):
-        pass
+        contrast_factor = self.determine_target_contrast()
+        self.contrast_slider.set(contrast_factor)
+        self.adjust_contrast(contrast_factor)
 
     def auto_adjust_saturation(self):
+        
         self.adjust_saturation(self.determine_target_saturation())
+        
 
     def auto_adjust_highlights(self):
         pass
@@ -254,8 +258,26 @@ class ImageEditor(tk.Tk):
         return exposure_factor  # Retourne la valeur appliquée pour information
 
     def determine_target_contrast(self):
-        pass
-    
+        if not self.original_image:
+            return 1.0  # Retourne un facteur neutre par défaut
+
+        # Convertir l'image en niveaux de gris
+        gray_image = self.original_image.convert("L")
+        image_array = np.array(gray_image)
+
+        # Calculer la moyenne et l'écart-type de la luminosité
+        mean_brightness = np.mean(image_array)
+        std_brightness = np.std(image_array)
+
+        # Calculer un facteur de contraste basé sur la moyenne et l'écart-type
+        contrast_factor = (std_brightness / 128) + (mean_brightness / 255)
+
+        # Appliquer un calcul pour obtenir un facteur dans une plage acceptable
+        contrast_factor = np.clip(contrast_factor, 0.5, 1.5)  # Assurer un facteur raisonnable
+
+        # Retourner le facteur de contraste calculé
+        return contrast_factor
+
     def determine_target_saturation(self):
         # Convertir l'image en mode HSV
         hsv_image = self.original_image.convert('HSV')
