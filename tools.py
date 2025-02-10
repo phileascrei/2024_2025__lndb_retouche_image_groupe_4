@@ -9,7 +9,7 @@ class ImageEditor(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("Application de Retouche d'Image")
+        self.title("PYXEL")
         self.geometry("1000x700")
         self.configure(bg="#263238")
 
@@ -17,6 +17,13 @@ class ImageEditor(tk.Tk):
         self.original_image = None
         self.display_image = None
         self.zoom_factor = 1.0
+        
+        # Paramètres de retouches
+        self.exposure_factor = 1.0
+        self.contrast_factor = 1.0
+        self.saturation_factor = 1.0
+        self.highlights_factor = 1.0
+        self.shadows_factor = 1.0
 
         # Barre de menu
         self.menu_bar = tk.Menu(self)
@@ -29,7 +36,7 @@ class ImageEditor(tk.Tk):
         self.file_menu.add_command(label="Enregistrer", command=self.save_image)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Quitter", command=self.quit)
-
+ 
         # Section principale
         self.main_frame = tk.Frame(self, bg="#263238")
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -89,6 +96,9 @@ class ImageEditor(tk.Tk):
         # Bouton reset 
         tk.Button(self.controls_frame, text="Réinitialiser", command=self.reset_sliders, bg="#3b4d56", fg="#eceff1", font=bold_font_title).pack(fill=tk.X, pady=5)
 
+
+
+
     def open_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg;*.jpeg;*.png;*.bmp")])
         if file_path:
@@ -104,6 +114,10 @@ class ImageEditor(tk.Tk):
             if file_path:
                 self.display_image.save(file_path)
 
+
+
+
+
     def zoom_image(self, value):
         self.zoom_factor = float(value)
         if self.original_image:
@@ -111,6 +125,42 @@ class ImageEditor(tk.Tk):
                 (int(self.original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
                 Image.Resampling.LANCZOS
             )
+            self.display_on_canvas()
+
+    def reset_sliders(self):
+        self.exposure_slider.set(1.00)
+        self.contrast_slider.set(1.00)
+        self.saturation_slider.set(1.00)
+        self.highlights_slider.set(1.00)
+        self.shadows_slider.set(1.00)
+
+
+    def update_image(self):
+        if self.original_image:
+            # Appliquer les ajustements de l'exposition
+            enhancer = ImageEnhance.Brightness(self.original_image)
+            updated_image = enhancer.enhance(self.exposure_factor)
+
+            # Appliquer les ajustements du contraste
+            enhancer = ImageEnhance.Contrast(updated_image)
+            updated_image = enhancer.enhance(self.contrast_factor)
+
+            # Appliquer les ajustements de la saturation
+            enhancer = ImageEnhance.Color(updated_image)
+            updated_image = enhancer.enhance(self.saturation_factor)
+
+            # Appliquer les ajustements des hautes lumières
+            img = np.array(updated_image.convert("RGB"), dtype=np.float32) / 255.0
+            img[:, :, 0:3] = np.clip(img[:, :, 0:3] * self.highlights_factor, 0, 1)
+            updated_image = Image.fromarray((img * 255).astype(np.uint8))
+
+            # Appliquer les ajustements des basses lumières
+            img = np.array(updated_image.convert("RGB"), dtype=np.float32) / 255.0
+            shadows_mask = img < 0.5  # On cible les basses lumières
+            img[shadows_mask] = np.clip(img[shadows_mask] * self.shadows_factor, 0, 1)
+            updated_image = Image.fromarray((img * 255).astype(np.uint8))
+
+            self.display_image = updated_image
             self.display_on_canvas()
 
     def display_on_canvas(self):
@@ -126,50 +176,30 @@ class ImageEditor(tk.Tk):
             )
             self.canvas.image = img_tk
 
-    def reset_sliders(self):
-        self.exposure_slider.set(1.00)
-        self.contrast_slider.set(1.00)
-        self.saturation_slider.set(0.00)
-        self.highlights_slider.set(1.00)
-        self.shadows_slider.set(1.00)
 
 
 
 
 
     def adjust_exposure(self, value):
-        if self.original_image:
-            enhancer = ImageEnhance.Brightness(self.original_image)
-            self.display_image = enhancer.enhance(float(value))
-            self.display_on_canvas()
+        self.exposure_factor = float(value)
+        self.update_image()
 
     def adjust_contrast(self, value):
-        if self.original_image:
-            enhancer = ImageEnhance.Contrast(self.original_image)
-            self.display_image = enhancer.enhance(float(value))
-            self.display_on_canvas()
+        self.contrast_factor = float(value)
+        self.update_image()
 
     def adjust_saturation(self, value):
-        if self.original_image:
-            enhancer = ImageEnhance.Color(self.original_image)
-            self.display_image = enhancer.enhance(float(value) + 1)  # Décalage pour éviter des valeurs négatives
-            self.display_on_canvas()
+        self.saturation_factor = float(value)
+        self.update_image()
 
     def adjust_highlights(self, value):
-        if self.original_image:
-            img = np.array(self.original_image.convert("RGB"), dtype=np.float32) / 255.0
-            img[:, :, 0:3] = np.clip(img[:, :, 0:3] * float(value), 0, 1)
-            self.display_image = Image.fromarray((img * 255).astype(np.uint8))
-            self.display_on_canvas()
+        self.highlights_factor = float(value)
+        self.update_image()
 
     def adjust_shadows(self, value):
-        if self.original_image:
-            img = np.array(self.original_image.convert("RGB"), dtype=np.float32) / 255.0
-            shadows_mask = img < 0.5  # On cible les basses lumières
-            img[shadows_mask] = np.clip(img[shadows_mask] * float(value), 0, 1)
-            self.display_image = Image.fromarray((img * 255).astype(np.uint8))
-            self.display_on_canvas()
-
+        self.shadows_factor = float(value)
+        self.update_image()
 
 
 
