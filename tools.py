@@ -121,8 +121,9 @@ class ImageEditor(tk.Tk):
     def zoom_image(self, value):
         self.zoom_factor = float(value)
         if self.original_image:
-            self.display_image = self.original_image.resize(
-                (int(self.original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
+            self.display_image = self.display_image.resize(
+                (int(self.
+                original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
                 Image.Resampling.LANCZOS
             )
             self.display_on_canvas()
