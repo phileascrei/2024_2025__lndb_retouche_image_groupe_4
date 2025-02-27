@@ -162,6 +162,7 @@ class ImageEditor(tk.Tk):
             updated_image = Image.fromarray((img * 255).astype(np.uint8))
 
             self.display_image = updated_image
+            self.zoom_image(self.zoom_factor)
             self.display_on_canvas()
 
     def display_on_canvas(self):
@@ -241,13 +242,16 @@ class ImageEditor(tk.Tk):
         mean_brightness = np.mean(image_array)
         std_brightness = np.std(image_array)
         return mean_brightness, std_brightness
+    
+
+
 
     def determine_target_exposure(self):
         """Déterminer le facteur d'exposition en fonction de la luminosité et de la variation de l'image."""
-        if not self.original_image:
+        if not self.display_image:
             return 1.0  # Retourne un facteur neutre par défaut
 
-        mean_brightness, std_brightness = self.calculate_image_statistics(self.original_image)
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
 
         # Ajustement basé sur la luminosité moyenne
         if mean_brightness < 50:  # Image sous-exposée
@@ -278,10 +282,10 @@ class ImageEditor(tk.Tk):
 
     def determine_target_saturation(self):
         """Calculer et ajuster la saturation de l'image."""
-        if not self.original_image:
+        if not self.display_image:
             return 1.0  # Retourne un facteur neutre par défaut
 
-        hsv_image = self.original_image.convert('HSV')
+        hsv_image = self.display_image.convert('HSV')
         hsv_array = np.array(hsv_image)
         s = hsv_array[:, :, 1]  # Saturation
 
@@ -296,10 +300,10 @@ class ImageEditor(tk.Tk):
 
     def determine_target_highlights(self):
         """Calculer et ajuster les hautes lumières de l'image."""
-        if not self.original_image:
+        if not self.display_image:
             return 1.0  # Retourne un facteur neutre par défaut
 
-        mean_brightness, std_brightness = self.calculate_image_statistics(self.original_image)
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
 
         # Calculer un facteur dynamique des hautes lumières
         highlights_factor = (mean_brightness + 2 * std_brightness) / 255  # Facteur basé sur la moyenne et l'écart-type
@@ -308,10 +312,10 @@ class ImageEditor(tk.Tk):
 
     def determine_target_shadows(self):
         """Calculer et ajuster les ombres de l'image."""
-        if not self.original_image:
+        if not self.display_image:
             return 1.0  # Retourne un facteur neutre par défaut
 
-        mean_brightness, std_brightness = self.calculate_image_statistics(self.original_image)
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
 
         # Calculer un facteur dynamique pour ajuster les ombres
         shadows_factor = (1 - (mean_brightness - 2 * std_brightness) / 255)
