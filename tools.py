@@ -10,7 +10,7 @@ class ImageEditor(tk.Tk):
         super().__init__()
 
         self.title("PYXEL")
-        self.iconbitmap("H:\\NSI\\projet2\\2024_2025__lndb_retouche_image_groupe_4\\Logo_Pyxel\\logo_Pyxel_vdef_icon.ico")
+        self.iconbitmap("Logo_Pyxel/logo_Pyxel_vdef_icon.ico")
         self.geometry("1000x700")
         self.configure(bg="#263238")
 
