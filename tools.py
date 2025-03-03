@@ -10,7 +10,7 @@ class ImageEditor(tk.Tk):
         super().__init__()
 
         self.title("PYXEL")
-        self.iconbitmap("H:/NSI/projet2/2024_2025__lndb_retouche_image_groupe_4/Logo_Pyxel/logo_Pyxel_vdef_icon.ico")
+        self.iconbitmap("H:\\NSI\\projet2\\2024_2025__lndb_retouche_image_groupe_4\\Logo_Pyxel\\logo_Pyxel_vdef_icon.ico")
         self.geometry("1000x700")
         self.configure(bg="#263238")
 
@@ -122,8 +122,9 @@ class ImageEditor(tk.Tk):
     def zoom_image(self, value):
         self.zoom_factor = float(value)
         if self.original_image:
-            self.display_image = self.original_image.resize(
-                (int(self.original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
+            self.display_image = self.display_image.resize(
+                (int(self.
+                original_image.width * self.zoom_factor), int(self.original_image.height * self.zoom_factor)),
                 Image.Resampling.LANCZOS
             )
             self.display_on_canvas()
@@ -213,7 +214,9 @@ class ImageEditor(tk.Tk):
         self.adjust_exposure(self.determine_target_exposure())
 
     def auto_adjust_contrast(self):
-        pass
+        contrast_factor = self.determine_target_contrast()
+        self.contrast_slider.set(contrast_factor)
+        self.adjust_contrast(contrast_factor)
 
     def auto_adjust_saturation(self):
         saturation_factor = self.determine_target_saturation()
