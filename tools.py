@@ -162,6 +162,7 @@ class ImageEditor(tk.Tk):
             updated_image = Image.fromarray((img * 255).astype(np.uint8))
 
             self.display_image = updated_image
+            self.zoom_image(self.zoom_factor)
             self.display_on_canvas()
 
     def display_on_canvas(self):
@@ -207,81 +208,114 @@ class ImageEditor(tk.Tk):
 
 
     def auto_adjust_exposure(self):
+        exposure_factor = self.determine_target_exposure()
+        self.exposure_slider.set(exposure_factor)
         self.adjust_exposure(self.determine_target_exposure())
 
     def auto_adjust_contrast(self):
         pass
 
     def auto_adjust_saturation(self):
+        saturation_factor = self.determine_target_saturation()
+        self.saturation_slider.set(saturation_factor)
         self.adjust_saturation(self.determine_target_saturation())
-
+        
     def auto_adjust_highlights(self):
-        pass
+        highlights_factor = self.determine_target_highlights()
+        self.highlights_slider.set(highlights_factor)
+        self.adjust_highlights(highlights_factor)
 
     def auto_adjust_shadows(self):
-        pass
+        shadows_factor = self.determine_target_shadows()
+        self.shadows_slider.set(shadows_factor)
+        self.adjust_shadows(shadows_factor)
 
 
 
+
+    def calculate_image_statistics(self, image):
+        """Calculer les statistiques de base (moyenne et écart-type) sur une image en niveaux de gris."""
+        gray_image = image.convert("L")
+        image_array = np.array(gray_image)
+        mean_brightness = np.mean(image_array)
+        std_brightness = np.std(image_array)
+        return mean_brightness, std_brightness
+    
 
 
 
     def determine_target_exposure(self):
-        if not self.original_image:
+        """Déterminer le facteur d'exposition en fonction de la luminosité et de la variation de l'image."""
+        if not self.display_image:
             return 1.0  # Retourne un facteur neutre par défaut
 
-        # Convertir l'image en niveaux de gris
-        gray_image = self.original_image.convert("L")
-        image_array = np.array(gray_image)
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
 
-        # Calculer la moyenne de la luminosité
-        mean_brightness = np.mean(image_array)
-        std_brightness = np.std(image_array)  # Écart-type pour voir la variation des niveaux de lumière
+        # Ajustement basé sur la luminosité moyenne
+        if mean_brightness < 50:  # Image sous-exposée
+            exposure_factor = 2.0 if std_brightness < 30 else 1.8
+        elif mean_brightness > 200:  # Image surexposée
+            exposure_factor = 0.8 if std_brightness > 50 else 0.7
+        else:  # Exposition correcte, ajustement plus précis
+            exposure_factor = 1.2 if mean_brightness < 120 else 1.0
 
-        # Analyse de l'exposition en fonction des seuils
-        if mean_brightness < 50:  # Photo sous-exposée (très sombre, souvent de nuit)
-            exposure_factor = 1.8 if std_brightness < 30 else 1.5  # Plus homogène = boost plus fort
-        elif mean_brightness > 200:  # Photo surexposée (très claire, en plein soleil)
-            exposure_factor = 0.7 if std_brightness > 50 else 0.8
-        else:
-            exposure_factor = 1.2 if mean_brightness < 120 else 0.9  # Ajustement fin
-
-        # Appliquer automatiquement l'ajustement
-        self.exposure_slider.set(exposure_factor)
-        enhancer = ImageEnhance.Brightness(self.original_image)
+        # Appliquer l'exposition à l'image
+        enhancer = ImageEnhance.Brightness(self.display_image)
         self.display_image = enhancer.enhance(exposure_factor)
-        self.display_on_canvas()
 
-        return exposure_factor  # Retourne la valeur appliquée pour information
+        return exposure_factor
 
     def determine_target_contrast(self):
-        pass
-    
+        """Calculer et ajuster le contraste de l'image."""
+        if not self.display_image:
+            return 1.0  # Retourne un facteur neutre par défaut
+
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
+
+        # Formule simple pour ajuster le contraste
+        contrast_factor = (std_brightness / 128) + (mean_brightness / 255)
+
+        # Retourner un facteur de contraste dans une plage raisonnable
+        return np.clip(contrast_factor, 0.5, 1.5)
+
     def determine_target_saturation(self):
-        # Convertir l'image en mode HSV
-        hsv_image = self.original_image.convert('HSV')
+        """Calculer et ajuster la saturation de l'image."""
+        if not self.display_image:
+            return 1.0  # Retourne un facteur neutre par défaut
+
+        hsv_image = self.display_image.convert('HSV')
         hsv_array = np.array(hsv_image)
+        s = hsv_array[:, :, 1]  # Saturation
 
-        # Extraire les composantes H, S, et V
-        h, s, v = hsv_array[:, :, 0], hsv_array[:, :, 1], hsv_array[:, :, 2]
+        # Calculer les statistiques de saturation
+        mean_s = np.mean(s)
+        std_s = np.std(s)
 
-        # Calculer les statistiques nécessaires sur la saturation
-        mean_s = np.mean(s)          # Moyenne de la saturation
-        std_s = np.std(s)            # Écart-type de la saturation
-        variance_s = np.var(s)       # Variance de la saturation
+        # Formule pour ajuster la saturation
+        saturation_factor = (mean_s / 255) + (std_s / (255 * np.sqrt(2 * np.pi)))
 
-        # Calculer une formule mathématique pour obtenir un facteur de saturation
-        # Formule simplifiée pour déterminer un ajustement dynamique basé sur les statistiques
-        saturation_factor = (mean_s / 255) + (std_s / (255 * np.sqrt(2 * np.pi)))  # Ajustement par écart-type normalisé
-
-        # Appliquer un calcul pour obtenir un facteur dans une plage acceptable
-        saturation_factor = np.clip(saturation_factor, 0.5, 1.5)  # Assurer un facteur raisonnable
-
-        # Retourner le facteur de saturation calculé
-        return saturation_factor
+        return np.clip(saturation_factor, 0.5, 1.5)
 
     def determine_target_highlights(self):
-        pass
+        """Calculer et ajuster les hautes lumières de l'image."""
+        if not self.display_image:
+            return 1.0  # Retourne un facteur neutre par défaut
+
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
+
+        # Calculer un facteur dynamique des hautes lumières
+        highlights_factor = (mean_brightness + 2 * std_brightness) / 255  # Facteur basé sur la moyenne et l'écart-type
+
+        return np.clip(highlights_factor, 0.5, 2.0)  # Permettre des valeurs plus élevées si nécessaire
 
     def determine_target_shadows(self):
-        pass
+        """Calculer et ajuster les ombres de l'image."""
+        if not self.display_image:
+            return 1.0  # Retourne un facteur neutre par défaut
+
+        mean_brightness, std_brightness = self.calculate_image_statistics(self.display_image)
+
+        # Calculer un facteur dynamique pour ajuster les ombres
+        shadows_factor = (1 - (mean_brightness - 2 * std_brightness) / 255)
+
+        return np.clip(shadows_factor, 0.5, 1.5)
