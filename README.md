@@ -15,4 +15,4 @@ En dessous de chaque slider, un boutton, intituler "Auto [nom du parametre]". Ce
 
 En bas a droite de l'application se trouve deux dernier parametres : le zoom et un boutton "Reinitialiser".
 Le zoom permet de modifier la taille de l'image dans le visualiser.
-le boutton "Reinitialiser" remet les parametre a leurs valeur de base.
+Le boutton "Reinitialiser" remet les parametre a leurs valeur de base.
